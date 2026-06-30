@@ -202,12 +202,3 @@ just call `cuda_generator(md_hom_X)` instead of `ocl_generator(md_hom_X)`.
 
 Original artifact: https://gitlab.com/mdh-project/pact_2019_artifact
 
----
-
-## License
-
-MIT - see `LICENSE`.
-
-Framework code in `framework/` originates from the PACT 2019 artifact and is used
-under the terms of its original license. The CUDA generator headers, kernel specs,
-test harnesses, and all documentation in this repo are original work.
