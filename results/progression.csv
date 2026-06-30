@@ -1,0 +1,8 @@
+kernel,grid,precision,block_size,cpu_ms,gpu_ms,speedup,elements,max_error,mismatches
+matmul,10x500 R=64,float,4x32x8,,,N/A,5000,5.72e-06,0
+poisson_single,64x64,double,16x16,,,N/A (single step),3844,0.0,0
+poisson_converge,64x64,double,16x16,,,3.98x (7700 iters),3844,0.0,0
+reservoir,500x500,double,16x16,1.56,0.78,2.0,247504,,
+reservoir,2000x2000,double,32x32,21.0,1.35,15.5,3992004,,
+reservoir,4000x4000,double,32x32,85.0,5.37,15.8,15984004,,
+reservoir,4000x4000,float,32x32,99.39,2.71,36.7,15984004,2.99e-07,0

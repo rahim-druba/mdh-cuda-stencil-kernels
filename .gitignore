@@ -1,0 +1,29 @@
+# Build directory
+build/
+*/build/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Compiled binaries and objects
+*.o
+*.a
+matmul
+poisson
+reservoir
+
+# Generated kernels that are not the pre-committed reference copies
+# (kernels/*/generated/*.cu are intentionally committed)
+# Any *_1.cu / *_2.cu sitting directly in build/ are transient
+build/*.cu
+
+# Editor and OS
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
