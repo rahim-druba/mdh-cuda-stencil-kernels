@@ -153,14 +153,14 @@ int main()
     printf("Elements checked     : %d\n", sz);
     printf("Max error vs serial  : %.3e\n", max_error);
     printf("Mismatches (>1e-10)  : %d\n", mismatches);
-    printf("Max error vs exact   : %.3e  (expected large — only 1 iteration)\n",
+    printf("Max error vs exact   : %.3e  (expected large - only 1 iteration)\n",
            max_exact_err);
     printf("GPU time (kernel 1)  : %f ms\n\n", gpu_ms);
 
     if (mismatches == 0)
         printf("Poisson (MDH) Jacobi step is SUCCESSFUL!\n");
     else
-        printf("Poisson (MDH) FAILED — %d mismatches vs serial reference\n",
+        printf("Poisson (MDH) FAILED - %d mismatches vs serial reference\n",
                mismatches);
 
     // ── cleanup ────────────────────────────────────────────────────────────────

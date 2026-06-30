@@ -11,9 +11,9 @@ Makefile
 # Compiled binaries and objects
 *.o
 *.a
-matmul
-poisson
-reservoir
+build/matmul
+build/poisson
+build/reservoir
 
 # Generated kernels that are not the pre-committed reference copies
 # (kernels/*/generated/*.cu are intentionally committed)

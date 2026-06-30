@@ -96,7 +96,7 @@ int main()
         }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PART 1 — SERIAL SOLVER
+    // PART 1 - SERIAL SOLVER
     // ══════════════════════════════════════════════════════════════════════════
     printf("--- Serial Jacobi ---\n");
 
@@ -152,7 +152,7 @@ int main()
     printf("  Max error vs exact: %e\n\n", serial_exact_err);
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PART 2 — GPU SOLVER (MDH)
+    // PART 2 - GPU SOLVER (MDH)
     // ══════════════════════════════════════════════════════════════════════════
     printf("--- GPU Jacobi (MDH-generated CUDA) ---\n");
 
@@ -234,7 +234,7 @@ int main()
     printf("  Max error vs exact    : %e\n\n", gpu_exact_err);
 
     // ══════════════════════════════════════════════════════════════════════════
-    // PART 3 — COMPARISON TABLE
+    // PART 3 - COMPARISON TABLE
     // ══════════════════════════════════════════════════════════════════════════
     printf("=== Comparison ===\n");
     printf("  %-30s  %12s  %12s\n", "Metric", "Serial CPU", "MDH GPU");

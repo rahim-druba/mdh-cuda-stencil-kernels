@@ -21,7 +21,7 @@
 // TYPE_T is set by nvcc -D flag (float or double)
 typedef TYPE_T real_t;
 
-// Grid — large enough to saturate GPU memory bandwidth
+// Grid - large enough to saturate GPU memory bandwidth
 static const int    FULLN = 4000;
 static const int    NI    = FULLN - 2;         // 3998 interior points per side
 static const double KX    = 0.001, KY = 0.001;
@@ -198,7 +198,7 @@ int main()
     if (mismatches == 0)
         printf("Reservoir (MDH) SpMV is SUCCESSFUL!\n");
     else
-        printf("Reservoir (MDH) FAILED — %d mismatches vs serial reference\n",
+        printf("Reservoir (MDH) FAILED - %d mismatches vs serial reference\n",
                mismatches);
 
     // ── cleanup ──────────────────────────────────────────────────────────────

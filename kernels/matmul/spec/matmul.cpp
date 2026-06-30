@@ -13,7 +13,7 @@ int main() {
     auto result = md_hom::result_buffer("S", {md_hom::L(1), md_hom::L(2)});
 
     auto f = md_hom::scalar_function("return Z_val * W_val;");
-    auto g = md_hom::scalar_function("return res;");  // identity — no activation
+    auto g = md_hom::scalar_function("return res;");  // identity - no activation
 
     auto md_hom_matmul = md_hom::md_hom<2, 1>(
         "matmul",

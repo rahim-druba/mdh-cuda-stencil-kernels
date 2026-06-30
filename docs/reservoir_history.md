@@ -1,15 +1,15 @@
-# Reservoir SpMV — MDH CUDA Generator Extension
-# Full history of this session: plan, implementation, bugs, and results
+# Reservoir SpMV - MDH CUDA Generator Extension
+# plan, implementation, bugs, and results
 
 ---
 
 ## Background
 
-The starting point was `Source.cpp` — a hand-written serial C++ GMRES solver for the 2-phase porous media flow (oil reservoir simulation) pressure equation on a 50×50 grid. The goal was to extract the core compute kernel and express it as an MDH spec so the generator produces a CUDA kernel automatically.
+The starting point was `Source.cpp` - a hand-written serial C++ GMRES solver for the 2-phase porous media flow (oil reservoir simulation) pressure equation on a 50×50 grid. The goal was to extract the core compute kernel and express it as an MDH spec so the generator produces a CUDA kernel automatically.
 
 ### Why GMRES itself cannot be MDH-ified
 
-GMRES (Generalized Minimal RESidual) is an iterative solver with sequential outer-loop dependencies — iteration k+1 depends on the result of iteration k. MDH handles parallel patterns (map + reduce), not sequential solvers. So the entire GMRES loop stays on CPU.
+GMRES (Generalized Minimal RESidual) is an iterative solver with sequential outer-loop dependencies - iteration k+1 depends on the result of iteration k. MDH handles parallel patterns (map + reduce), not sequential solvers. So the entire GMRES loop stays on CPU.
 
 ### What CAN be extracted
 
@@ -26,7 +26,7 @@ for (i = 0; i < n; i++) {
 }
 ```
 
-Although stored in CRS (Compressed Row Storage) format, matrix A encodes a **regular 2D 5-point stencil** — the same family as J3D7PT and the Poisson solver. The a/b/c/d/e labels in Source.cpp comments are literally the 5 stencil directions. By bypassing CRS and expressing the computation directly as a stencil, it becomes fully MDH-expressible.
+Although stored in CRS (Compressed Row Storage) format, matrix A encodes a **regular 2D 5-point stencil** - the same family as J3D7PT and the Poisson solver. The a/b/c/d/e labels in Source.cpp comments are literally the 5 stencil directions. By bypassing CRS and expressing the computation directly as a stencil, it becomes fully MDH-expressible.
 
 ---
 
@@ -60,7 +60,7 @@ W[i,j] = COEFF_UP[i,j]     * V[i-1,j]
         + COEFF_DOWN[i,j]   * V[i+1,j]
 ```
 
-This is a **variable-coefficient 2D 5-point stencil** — same topology as Poisson (J2D5PT) but with spatially varying weights instead of constant 0.25.
+This is a **variable-coefficient 2D 5-point stencil** - same topology as Poisson (J2D5PT) but with spatially varying weights instead of constant 0.25.
 
 ---
 
@@ -70,8 +70,8 @@ Rather than passing Mx and My as stencil buffers (which would require a double-s
 
 | Approach | Complexity | Notes |
 |---|---|---|
-| Pass Mx/My as stencil buffers | High — double stencil in f() | Mx[i-1,j] inside f() while V is also a stencil |
-| **Precompute COEFF_* on CPU** | **Low — 5 plain input_buffers** | **Clean f(), CPU precompute is negligible** |
+| Pass Mx/My as stencil buffers | High - double stencil in f() | Mx[i-1,j] inside f() while V is also a stencil |
+| **Precompute COEFF_* on CPU** | **Low - 5 plain input_buffers** | **Clean f(), CPU precompute is negligible** |
 
 Five 2D arrays (COEFF_UP, COEFF_LEFT, COEFF_CENTER, COEFF_RIGHT, COEFF_DOWN) are passed as regular `input_buffer` objects. V uses the same 5-point cross neighborhood as the Poisson spec.
 
@@ -115,7 +115,7 @@ A new isolated folder was created to avoid touching the working Poisson setup:
 ## MDH Spec (reservoir.cpp)
 
 ```cpp
-// V: the vector being multiplied — 5-point cross stencil (same as Poisson)
+// V: the vector being multiplied - 5-point cross stencil (same as Poisson)
 auto V = md_hom::input_stencil_buffer(
     "V",
     {md_hom::L(1), md_hom::L(2)},
@@ -123,7 +123,7 @@ auto V = md_hom::input_stencil_buffer(
     md_hom::oob::ZERO
 );
 
-// Precomputed stencil coefficients — one value per interior grid point
+// Precomputed stencil coefficients - one value per interior grid point
 auto COEFF_UP     = md_hom::input_buffer("COEFF_UP",     {md_hom::L(1), md_hom::L(2)});
 auto COEFF_LEFT   = md_hom::input_buffer("COEFF_LEFT",   {md_hom::L(1), md_hom::L(2)});
 auto COEFF_CENTER = md_hom::input_buffer("COEFF_CENTER", {md_hom::L(1), md_hom::L(2)});
@@ -139,7 +139,7 @@ auto f = md_hom::scalar_function(
     " + COEFF_DOWN_val * V_val_l1_p1;"
 );
 
-// g: identity — no reduction (R_DIMS = 0)
+// g: identity - no reduction (R_DIMS = 0)
 auto g = md_hom::scalar_function("return res;");
 
 auto md_hom_reservoir = md_hom::md_hom<2, 0>(
@@ -163,7 +163,7 @@ auto md_hom_reservoir = md_hom::md_hom<2, 0>(
 
 ---
 
-## nvcc Compilation Config (final — float, 4000×4000)
+## nvcc Compilation Config (final - float, 4000×4000)
 
 ```bash
 nvcc test_reservoir.cu reservoir_1.cu -o test_reservoir \
@@ -182,24 +182,24 @@ Config notes:
 - `G_CB_SIZE=3998`: interior of the 4000×4000 grid
 - `float` precision: halves memory per element → 2× more data per GPU bandwidth unit
 - `NUM_WG=125`: 125×32=4000 threads cover the 3998×3998 interior (2 idle threads per row/col)
-- `NUM_WI=32`: 32×32=1024 threads per block — better GPU occupancy than 16×16=256
+- `NUM_WI=32`: 32×32=1024 threads per block - better GPU occupancy than 16×16=256
 - `oob::ZERO`: zero Dirichlet boundary conditions on ghost layer
 
 ---
 
 ## Bugs Found During Timing/Speedup Work
 
-### Bug 2 — `sizeof(double)` hardcoded in cudaMemcpy after switching to float
+### Bug 2 - `sizeof(double)` hardcoded in cudaMemcpy after switching to float
 
 **Error:** Segmentation fault (exit code 139) when compiling with `-DTYPE_T=float`
 
-**Cause:** The pointer types (`double *`) were correctly changed to `real_t *` but the `sizeof(double)` in all `cudaMalloc`, `cudaMemcpy`, and `cudaMemset` calls were not updated. With float, each array was allocated with `sz * 4` bytes but cudaMemcpy tried to copy `sz * 8` bytes — writing past the end of the GPU buffer, causing a host-side memory violation.
+**Cause:** The pointer types (`double *`) were correctly changed to `real_t *` but the `sizeof(double)` in all `cudaMalloc`, `cudaMemcpy`, and `cudaMemset` calls were not updated. With float, each array was allocated with `sz * 4` bytes but cudaMemcpy tried to copy `sz * 8` bytes - writing past the end of the GPU buffer, causing a host-side memory violation.
 
 **Fix:** Changed all `sizeof(double)` → `sizeof(real_t)` throughout the test. Used `replace_all` to catch every instance.
 
-**Lesson:** When making a type generic (`real_t = TYPE_T`), check EVERY `sizeof` — not just the pointer declarations.
+**Lesson:** When making a type generic (`real_t = TYPE_T`), check EVERY `sizeof` - not just the pointer declarations.
 
-### Bug 3 — Mismatch threshold too tight for float precision
+### Bug 3 - Mismatch threshold too tight for float precision
 
 **Error:** Test reported FAILED with 15.9M mismatches at 1e-10 threshold, even though results were correct.
 
@@ -212,7 +212,7 @@ const double THRESH = (sizeof(real_t) == 4) ? 1e-5 : 1e-10;
 
 ---
 
-## Test Results — Correctness (initial, double, 50×50)
+## Test Results - Correctness (initial, double, 50×50)
 
 ```
 Elements checked     : 2304
@@ -222,7 +222,7 @@ GPU time (kernel 1)  : 0.030 ms
 Reservoir (MDH) SpMV is SUCCESSFUL!
 ```
 
-## Test Results — Speedup Progression
+## Test Results - Speedup Progression
 
 | Grid | Precision | Blocks | CPU time | GPU time | Speedup |
 |---|---|---|---|---|---|
@@ -281,11 +281,11 @@ Reservoir (MDH) SpMV is SUCCESSFUL!
 
 ## Research Significance
 
-1. **Correctness** — GPU SpMV matches serial within float precision (2.99e-07 < 10×ε_float)
-2. **Speedup** — 36.7× on 4000×4000 grid — demonstrates GPU acceleration of reservoir simulation kernel
-3. **New contribution** — First MDH generator spec for a variable-coefficient reservoir stencil kernel
-4. **CRS bypass** — Proves that CRS-format PDE operators on regular grids can be reformulated as MDH stencils and auto-generated as CUDA kernels
-5. **General pattern** — Any PDE solver using a regular-grid stencil wrapped in CRS for a library can have its hot SpMV replaced by an MDH-generated CUDA kernel
+1. **Correctness** - GPU SpMV matches serial within float precision (2.99e-07 < 10×ε_float)
+2. **Speedup** - 36.7× on 4000×4000 grid - demonstrates GPU acceleration of reservoir simulation kernel
+3. **New contribution** - First MDH generator spec for a variable-coefficient reservoir stencil kernel
+4. **CRS bypass** - Proves that CRS-format PDE operators on regular grids can be reformulated as MDH stencils and auto-generated as CUDA kernels
+5. **General pattern** - Any PDE solver using a regular-grid stencil wrapped in CRS for a library can have its hot SpMV replaced by an MDH-generated CUDA kernel
 
 ---
 
@@ -293,7 +293,7 @@ Reservoir (MDH) SpMV is SUCCESSFUL!
 
 | File | Purpose |
 |---|---|
-| `Source.cpp` | Original serial GMRES solver — serial reference, untouched |
-| `src/reservoir/reservoir.cpp` | MDH spec — our contribution |
+| `Source.cpp` | Original serial GMRES solver - serial reference, untouched |
+| `src/reservoir/reservoir.cpp` | MDH spec - our contribution |
 | `build/reservoir_1.cu` | Generated CUDA kernel (1.3 MB) |
 | `build/test_reservoir.cu` | Single-step correctness test |

@@ -24,7 +24,7 @@
  * oob::ZERO handles zero Dirichlet boundary conditions on the ghost layer.
  */
 int main() {
-    // V: the vector being multiplied — 5-point cross stencil
+    // V: the vector being multiplied - 5-point cross stencil
     auto V = md_hom::input_stencil_buffer(
         "V",
         {md_hom::L(1), md_hom::L(2)},
@@ -32,7 +32,7 @@ int main() {
         md_hom::oob::ZERO
     );
 
-    // Precomputed stencil coefficients — one value per interior grid point
+    // Precomputed stencil coefficients - one value per interior grid point
     auto COEFF_UP     = md_hom::input_buffer("COEFF_UP",     {md_hom::L(1), md_hom::L(2)});
     auto COEFF_LEFT   = md_hom::input_buffer("COEFF_LEFT",   {md_hom::L(1), md_hom::L(2)});
     auto COEFF_CENTER = md_hom::input_buffer("COEFF_CENTER", {md_hom::L(1), md_hom::L(2)});
@@ -50,7 +50,7 @@ int main() {
         " + COEFF_DOWN_val * V_val_l1_p1;"
     );
 
-    // g: identity — no reduction (R_DIMS = 0)
+    // g: identity - no reduction (R_DIMS = 0)
     auto g = md_hom::scalar_function("return res;");
 
     auto md_hom_reservoir = md_hom::md_hom<2, 0>(

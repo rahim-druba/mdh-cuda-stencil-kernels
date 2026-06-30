@@ -1,6 +1,6 @@
 //
 // CUDA kernel generator for the MDH (Multi-Dimensional Homomorphism) framework.
-// Modeled directly on ocl_generator.hpp — only CUDA-specific syntax differs.
+// Modeled directly on ocl_generator.hpp - only CUDA-specific syntax differs.
 //
 
 #ifndef MDH_CUDA_GENERATOR_HPP
