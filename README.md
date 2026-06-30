@@ -195,13 +195,7 @@ and breaks through to 36.7x. Full analysis in `docs/speedup_analysis.md`.
 
 ## Background
 
-This work extends the MDH artifact from PACT 2019:
-
-> Hagedorn, B., Lenfers, L., Koehler, T., Qin, X., Gorlatch, S., Steuwer, M.
-> "Achieving high-performance the functional way: a functional pearl on expressing
-> high-performance optimizations as rewrite rules."
-> ICFP 2020. (Related: PACT 2019 artifact)
-
+This work extends the MDH (Multi-Dimensional Homomorphism) PACT 2019 artifact.
 The original artifact generates OpenCL. This repo adds `framework/include/cuda_generator.hpp`
 as a drop-in CUDA backend. The MDH spec files are identical for both backends - you
 just call `cuda_generator(md_hom_X)` instead of `ocl_generator(md_hom_X)`.
