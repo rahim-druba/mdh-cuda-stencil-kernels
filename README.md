@@ -2,10 +2,6 @@
 
 **Auto-generating optimized CUDA kernels from high-level stencil specs using the MDH framework.**
 
-![Language](https://img.shields.io/badge/language-C%2B%2B14%20%2F%20CUDA-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Based on](https://img.shields.io/badge/based%20on-PACT%202019%20artifact-orange)
-
 ---
 
 ## What this is
