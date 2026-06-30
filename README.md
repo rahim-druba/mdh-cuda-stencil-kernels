@@ -2,6 +2,12 @@
 
 **Auto-generating optimized CUDA kernels from high-level stencil specs using the MDH framework.**
 
+![C++14](https://img.shields.io/badge/C%2B%2B-14-blue?logo=c%2B%2B)
+![CUDA](https://img.shields.io/badge/CUDA-GPU-76b900?logo=nvidia&logoColor=white)
+![Speedup](https://img.shields.io/badge/speedup-36.7x-brightgreen)
+![Platform](https://img.shields.io/badge/platform-Linux-lightgrey?logo=linux&logoColor=white)
+![Based on](https://img.shields.io/badge/based%20on-PACT%202019-orange)
+
 ---
 
 ## What this is
